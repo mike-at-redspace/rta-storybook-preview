@@ -1,6 +1,6 @@
 {
   "name": "rta-preview-addon",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Storybook addon for testing component behavior across device sizes, orientations, and screen types.",
   "author": "Paramount",
   "license": "MIT",
