@@ -13,7 +13,7 @@ vi.mock("../hooks", async (importOriginal) => {
 
 const mockUsePreviewViewport = vi.mocked(usePreviewViewport);
 
-vi.mock("@storybook/preview-api", () => ({
+vi.mock("storybook/preview-api", () => ({
   addons: {
     getChannel: () => ({ on: vi.fn(), off: vi.fn() }),
   },
@@ -33,6 +33,7 @@ describe("Preview", () => {
       isConstrained: false,
       scaledWidth: 0,
       scaledHeight: 0,
+      scale: 1,
       deviceWrapperStyle: {},
     } as ReturnType<typeof usePreviewViewport>);
 
@@ -58,6 +59,7 @@ describe("Preview", () => {
       showSize: false,
       isConstrained: false,
       scaledWidth: 0,
+      scale: 1,
       scaledHeight: 0,
       deviceWrapperStyle: {},
     } as ReturnType<typeof usePreviewViewport>);

@@ -1,4 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
+import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useContainerSize } from "./useContainerSize";
 
@@ -69,7 +70,8 @@ describe("useContainerSize", () => {
     });
 
     act(() => {
-      result.current.containerRef.current = childDiv;
+      (result.current.containerRef as React.MutableRefObject<HTMLDivElement | null>).current =
+        childDiv;
     });
 
     // Size should be from parent when available

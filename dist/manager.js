@@ -1,5 +1,10 @@
+import { addons, types, useGlobals, useStorybookApi } from 'storybook/manager-api';
+import { memo, useState, useCallback, useEffect, useRef } from 'react';
+import 'storybook/preview-api';
+import { styled } from 'storybook/theming';
+import { jsxs, jsx } from 'react/jsx-runtime';
+
 // src/ui/Manager.tsx
-import { addons as addons2, types } from "@storybook/manager-api";
 
 // src/constants.ts
 var ADDON_ID = "rta-preview-addon";
@@ -18,24 +23,8 @@ var DEFAULT_ZOOM = "fit";
 var ZOOM_CONFIG = {
   min: 0.1,
   max: 3,
-  step: 0.25
+  step: 0.05
 };
-
-// src/ui/Tool.tsx
-import { memo as memo7, useCallback as useCallback4, useEffect as useEffect6, useState as useState3 } from "react";
-
-// src/hooks/useContainerSize.ts
-import { useCallback, useEffect, useRef, useState } from "react";
-
-// src/hooks/useDebouncedResize.ts
-import { useEffect as useEffect2, useRef as useRef2 } from "react";
-
-// src/hooks/usePanWhenZoomed.ts
-import { useCallback as useCallback2, useEffect as useEffect3, useRef as useRef3, useState as useState2 } from "react";
-
-// src/hooks/usePreviewViewport.ts
-import { useGlobals } from "@storybook/preview-api";
-import { useEffect as useEffect4, useMemo } from "react";
 
 // src/devices.ts
 var DEVICES = {
@@ -82,10 +71,6 @@ var DEVICE_CATEGORIES = [
 function sanitizeFilenameForDownload(label) {
   return label.replace(/\s*\/\s*/g, "-").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "") || "preview";
 }
-
-// src/hooks/useRtaPreview.ts
-import { useGlobals as useGlobals2, useStorybookApi } from "@storybook/manager-api";
-import { useCallback as useCallback3, useEffect as useEffect5, useRef as useRef4 } from "react";
 function safeUpdateGlobals(updateGlobals, patch) {
   try {
     updateGlobals(patch);
@@ -94,11 +79,11 @@ function safeUpdateGlobals(updateGlobals, patch) {
 }
 var GLOBALS_HINT = "RTA Preview: Add ...getRtaPreviewPreviewConfig() to your .storybook/preview.ts so addon globals are declared. See rta-preview-addon README.";
 function useRtaPreview() {
-  const [globals, updateGlobals] = useGlobals2();
+  const [globals, updateGlobals] = useGlobals();
   const api = useStorybookApi();
-  const hintLoggedRef = useRef4(false);
-  const attemptedEnableRef = useRef4(false);
-  const safeUpdate = useCallback3(
+  const hintLoggedRef = useRef(false);
+  const attemptedEnableRef = useRef(false);
+  const safeUpdate = useCallback(
     (patch) => safeUpdateGlobals(updateGlobals, patch),
     [updateGlobals]
   );
@@ -112,7 +97,7 @@ function useRtaPreview() {
   const device = DEVICES[deviceId];
   const rotatable = device?.rotatable ?? true;
   const isCustom = deviceId === "custom";
-  const setDevice = useCallback3(
+  const setDevice = useCallback(
     (e) => {
       const key = e.target.value;
       safeUpdate({
@@ -123,46 +108,46 @@ function useRtaPreview() {
     },
     [safeUpdate]
   );
-  const cycleRotation = useCallback3(() => {
+  const cycleRotation = useCallback(() => {
     if (!rotatable) return;
     const next = rotation === 270 ? 0 : rotation + 90;
     safeUpdate({ [RTA_PREVIEW_ROTATE]: next, [RTA_PREVIEW_ZOOM]: "fit" });
   }, [rotation, rotatable, safeUpdate]);
-  const zoomIn = useCallback3(() => {
+  const zoomIn = useCallback(() => {
     const current = typeof zoom === "number" ? zoom : 1;
     const next = Math.min(ZOOM_CONFIG.max, current + ZOOM_CONFIG.step);
     safeUpdate({ [RTA_PREVIEW_ZOOM]: next });
   }, [zoom, safeUpdate]);
-  const zoomOut = useCallback3(() => {
+  const zoomOut = useCallback(() => {
     const current = typeof zoom === "number" ? zoom : 1;
     const next = Math.max(ZOOM_CONFIG.min, current - ZOOM_CONFIG.step);
     safeUpdate({ [RTA_PREVIEW_ZOOM]: next });
   }, [zoom, safeUpdate]);
-  const zoomFit = useCallback3(() => {
+  const zoomFit = useCallback(() => {
     safeUpdate({ [RTA_PREVIEW_ZOOM]: "fit" });
   }, [safeUpdate]);
-  const setCustomWidth = useCallback3(
+  const setCustomWidth = useCallback(
     (e) => {
       const n = Number.parseInt(e.target.value, 10);
       safeUpdate({ [RTA_PREVIEW_CUSTOM_WIDTH]: Number.isNaN(n) ? void 0 : n });
     },
     [safeUpdate]
   );
-  const setCustomHeight = useCallback3(
+  const setCustomHeight = useCallback(
     (e) => {
       const n = Number.parseInt(e.target.value, 10);
       safeUpdate({ [RTA_PREVIEW_CUSTOM_HEIGHT]: Number.isNaN(n) ? void 0 : n });
     },
     [safeUpdate]
   );
-  const setEnabled = useCallback3(
+  const setEnabled = useCallback(
     (value) => {
       if (value) attemptedEnableRef.current = true;
       safeUpdate({ [RTA_PREVIEW_ENABLED]: value });
     },
     [safeUpdate]
   );
-  useEffect5(() => {
+  useEffect(() => {
     if (enabled) {
       attemptedEnableRef.current = false;
       return;
@@ -177,10 +162,10 @@ function useRtaPreview() {
     }, 200);
     return () => clearTimeout(id);
   }, [enabled]);
-  const toggleToolbar = useCallback3(() => {
+  const toggleToolbar = useCallback(() => {
     safeUpdate({ [RTA_PREVIEW_TOOLBAR_VISIBLE]: !toolbarVisible });
   }, [toolbarVisible, safeUpdate]);
-  useEffect5(() => {
+  useEffect(() => {
     api.setAddonShortcut(ADDON_ID, {
       label: "Zoom in",
       defaultShortcut: ["ctrl", "="],
@@ -231,13 +216,6 @@ function useRtaPreview() {
     canZoomOut
   };
 }
-
-// src/ui/CustomDimensions.tsx
-import { memo } from "react";
-
-// src/ui/Styles.tsx
-import { styled } from "@storybook/theming";
-import { jsx } from "react/jsx-runtime";
 var TOOLBAR_BUTTON_COLOR = "rgb(115, 130, 140)";
 var TOOLBAR_BUTTON_HOVER_COLOR = "rgb(2, 156, 253)";
 var TOOLBAR_BUTTON_HOVER_BG = "rgba(2, 156, 253, 0.14)";
@@ -389,9 +367,6 @@ var Row = styled.div({
   alignItems: "center",
   gap: 6
 });
-
-// src/ui/CustomDimensions.tsx
-import { jsx as jsx2, jsxs } from "react/jsx-runtime";
 var CustomDimensions = memo(function CustomDimensions2({
   customWidth,
   customHeight,
@@ -399,8 +374,8 @@ var CustomDimensions = memo(function CustomDimensions2({
   onCustomHeightChange
 }) {
   return /* @__PURE__ */ jsxs(Row, { children: [
-    /* @__PURE__ */ jsx2(Label, { htmlFor: "rta-preview-width", children: "W" }),
-    /* @__PURE__ */ jsx2(
+    /* @__PURE__ */ jsx(Label, { htmlFor: "rta-preview-width", children: "W" }),
+    /* @__PURE__ */ jsx(
       Input,
       {
         id: "rta-preview-width",
@@ -412,8 +387,8 @@ var CustomDimensions = memo(function CustomDimensions2({
         "aria-label": "Custom width"
       }
     ),
-    /* @__PURE__ */ jsx2(Label, { htmlFor: "rta-preview-height", children: "H" }),
-    /* @__PURE__ */ jsx2(
+    /* @__PURE__ */ jsx(Label, { htmlFor: "rta-preview-height", children: "H" }),
+    /* @__PURE__ */ jsx(
       Input,
       {
         id: "rta-preview-height",
@@ -427,12 +402,8 @@ var CustomDimensions = memo(function CustomDimensions2({
     )
   ] });
 });
-
-// src/ui/Device.tsx
-import { memo as memo2 } from "react";
-import { jsx as jsx3 } from "react/jsx-runtime";
-var Device = memo2(function Device2({ deviceId, onDeviceChange }) {
-  return /* @__PURE__ */ jsx3(
+var Device = memo(function Device2({ deviceId, onDeviceChange }) {
+  return /* @__PURE__ */ jsx(
     Select,
     {
       id: "rta-preview-device",
@@ -442,18 +413,13 @@ var Device = memo2(function Device2({ deviceId, onDeviceChange }) {
       children: DEVICE_CATEGORIES.map(({ label: groupLabel, pattern }) => {
         const keys = Object.keys(DEVICES).filter((k) => pattern.test(k));
         if (!keys.length) return null;
-        return /* @__PURE__ */ jsx3("optgroup", { label: groupLabel, children: keys.map((id) => /* @__PURE__ */ jsx3("option", { value: id, children: DEVICES[id].label }, id)) }, groupLabel);
+        return /* @__PURE__ */ jsx("optgroup", { label: groupLabel, children: keys.map((id) => /* @__PURE__ */ jsx("option", { value: id, children: DEVICES[id].label }, id)) }, groupLabel);
       })
     }
   );
 });
-
-// src/ui/Download.tsx
-import { addons } from "@storybook/manager-api";
-import { memo as memo3 } from "react";
-import { jsx as jsx4, jsxs as jsxs2 } from "react/jsx-runtime";
 function DownloadIcon({ size = 16 }) {
-  return /* @__PURE__ */ jsxs2(
+  return /* @__PURE__ */ jsxs(
     "svg",
     {
       width: size,
@@ -467,38 +433,34 @@ function DownloadIcon({ size = 16 }) {
       strokeLinejoin: "round",
       "aria-hidden": true,
       children: [
-        /* @__PURE__ */ jsx4("title", { children: "Download" }),
-        /* @__PURE__ */ jsx4("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
-        /* @__PURE__ */ jsx4("polyline", { points: "7 10 12 15 17 10" }),
-        /* @__PURE__ */ jsx4("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
+        /* @__PURE__ */ jsx("title", { children: "Download" }),
+        /* @__PURE__ */ jsx("path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }),
+        /* @__PURE__ */ jsx("polyline", { points: "7 10 12 15 17 10" }),
+        /* @__PURE__ */ jsx("line", { x1: "12", y1: "15", x2: "12", y2: "3" })
       ]
     }
   );
 }
-var Download = memo3(function Download2({ deviceLabel, deviceId }) {
+var Download = memo(function Download2({ deviceLabel, deviceId }) {
   const handleClick = () => {
     const label = deviceLabel ?? deviceId;
     const base = sanitizeFilenameForDownload(label);
     const filename = `${base}.png`;
     addons.getChannel().emit(RTA_PREVIEW_DOWNLOAD_VIEW, { filename });
   };
-  return /* @__PURE__ */ jsx4(
+  return /* @__PURE__ */ jsx(
     Button,
     {
       type: "button",
       onClick: handleClick,
       "aria-label": "Download current view",
       title: "Download current view",
-      children: /* @__PURE__ */ jsx4(DownloadIcon, {})
+      children: /* @__PURE__ */ jsx(DownloadIcon, {})
     }
   );
 });
-
-// src/ui/Enable.tsx
-import { memo as memo4 } from "react";
-import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
 function PhoneIcon({ size = 16 }) {
-  return /* @__PURE__ */ jsxs3(
+  return /* @__PURE__ */ jsxs(
     "svg",
     {
       width: size,
@@ -508,8 +470,8 @@ function PhoneIcon({ size = 16 }) {
       style: { transform: "scale(1.3)" },
       "aria-hidden": true,
       children: [
-        /* @__PURE__ */ jsx5("title", { children: "Phone" }),
-        /* @__PURE__ */ jsxs3(
+        /* @__PURE__ */ jsx("title", { children: "Phone" }),
+        /* @__PURE__ */ jsxs(
           "g",
           {
             style: {
@@ -521,10 +483,10 @@ function PhoneIcon({ size = 16 }) {
             },
             transform: "matrix(2.81 0 0 2.81 1.407 1.407)",
             children: [
-              /* @__PURE__ */ jsx5("path", { d: "M64.967 0H25.033a6.106 6.106 0 0 0-6.099 6.098v77.803A6.107 6.107 0 0 0 25.033 90h39.934a6.106 6.106 0 0 0 6.099-6.099V6.098A6.106 6.106 0 0 0 64.967 0zM20.935 12.417h48.131v63.67H20.935v-63.67zM25.033 2h39.934a4.103 4.103 0 0 1 4.099 4.098v4.319H20.935V6.098A4.102 4.102 0 0 1 25.033 2zm39.934 86H25.033a4.104 4.104 0 0 1-4.099-4.099v-5.814h48.131v5.814A4.103 4.103 0 0 1 64.967 88z" }),
-              /* @__PURE__ */ jsx5("circle", { cx: "45", cy: "83.04", r: "2" }),
-              /* @__PURE__ */ jsx5("path", { d: "M47.169 7.254H36.114a1 1 0 0 1 0-2h11.055a1 1 0 1 1 0 2z" }),
-              /* @__PURE__ */ jsx5("circle", { cx: "51.89", cy: "6.25", r: "1.5" })
+              /* @__PURE__ */ jsx("path", { d: "M64.967 0H25.033a6.106 6.106 0 0 0-6.099 6.098v77.803A6.107 6.107 0 0 0 25.033 90h39.934a6.106 6.106 0 0 0 6.099-6.099V6.098A6.106 6.106 0 0 0 64.967 0zM20.935 12.417h48.131v63.67H20.935v-63.67zM25.033 2h39.934a4.103 4.103 0 0 1 4.099 4.098v4.319H20.935V6.098A4.102 4.102 0 0 1 25.033 2zm39.934 86H25.033a4.104 4.104 0 0 1-4.099-4.099v-5.814h48.131v5.814A4.103 4.103 0 0 1 64.967 88z" }),
+              /* @__PURE__ */ jsx("circle", { cx: "45", cy: "83.04", r: "2" }),
+              /* @__PURE__ */ jsx("path", { d: "M47.169 7.254H36.114a1 1 0 0 1 0-2h11.055a1 1 0 1 1 0 2z" }),
+              /* @__PURE__ */ jsx("circle", { cx: "51.89", cy: "6.25", r: "1.5" })
             ]
           }
         )
@@ -532,29 +494,25 @@ function PhoneIcon({ size = 16 }) {
     }
   );
 }
-var Enable = memo4(function Enable2({ enabled, onSetEnabled }) {
-  return /* @__PURE__ */ jsx5(
+var Enable = memo(function Enable2({ enabled, onSetEnabled }) {
+  return /* @__PURE__ */ jsx(
     Button,
     {
       type: "button",
       onClick: () => onSetEnabled(!enabled),
       "aria-label": enabled ? "Disable RTA Preview" : "Enable RTA Preview",
       title: enabled ? "Turn off device preview" : "Enable device preview",
-      children: /* @__PURE__ */ jsx5(PhoneIcon, {})
+      children: /* @__PURE__ */ jsx(PhoneIcon, {})
     }
   );
 });
-
-// src/ui/Rotation.tsx
-import { memo as memo5 } from "react";
-import { jsx as jsx6 } from "react/jsx-runtime";
-var Rotation = memo5(function Rotation2({
+var Rotation = memo(function Rotation2({
   rotation,
   rotatable,
   onCycleRotation
 }) {
   if (!rotatable) return null;
-  return /* @__PURE__ */ jsx6(Row, { children: /* @__PURE__ */ jsx6(
+  return /* @__PURE__ */ jsx(Row, { children: /* @__PURE__ */ jsx(
     Button,
     {
       type: "button",
@@ -565,11 +523,7 @@ var Rotation = memo5(function Rotation2({
     }
   ) });
 });
-
-// src/ui/Zoom.tsx
-import { memo as memo6 } from "react";
-import { jsx as jsx7, jsxs as jsxs4 } from "react/jsx-runtime";
-var Zoom = memo6(function Zoom2({
+var Zoom = memo(function Zoom2({
   zoomNum,
   canZoomIn,
   canZoomOut,
@@ -578,8 +532,8 @@ var Zoom = memo6(function Zoom2({
   onZoomOut,
   onZoomFit
 }) {
-  return /* @__PURE__ */ jsxs4(Row, { children: [
-    /* @__PURE__ */ jsx7(
+  return /* @__PURE__ */ jsxs(Row, { children: [
+    /* @__PURE__ */ jsx(
       Button,
       {
         type: "button",
@@ -590,7 +544,7 @@ var Zoom = memo6(function Zoom2({
         children: "\u2212"
       }
     ),
-    /* @__PURE__ */ jsx7(
+    /* @__PURE__ */ jsx(
       Button,
       {
         type: "button",
@@ -601,7 +555,7 @@ var Zoom = memo6(function Zoom2({
         children: "Fit"
       }
     ),
-    /* @__PURE__ */ jsx7(
+    /* @__PURE__ */ jsx(
       Button,
       {
         type: "button",
@@ -612,46 +566,43 @@ var Zoom = memo6(function Zoom2({
         children: "+"
       }
     ),
-    /* @__PURE__ */ jsx7(ZoomPercent, { "aria-label": "Zoom percentage", role: "status", children: `${Math.round(zoomNum * 100)}%` })
+    /* @__PURE__ */ jsx(ZoomPercent, { "aria-label": "Zoom percentage", role: "status", children: `${Math.round(zoomNum * 100)}%` })
   ] });
 });
-
-// src/ui/Tool.tsx
-import { jsx as jsx8, jsxs as jsxs5 } from "react/jsx-runtime";
 var FIT_FLASH_DURATION_MS = 500;
-var Tool = memo7(function Toolbar2() {
+var Tool = memo(function Toolbar2() {
   const api = useRtaPreview();
-  const [fitButtonFlash, setFitButtonFlash] = useState3(false);
-  const triggerFitFlash = useCallback4(() => setFitButtonFlash(true), []);
-  useEffect6(() => {
+  const [fitButtonFlash, setFitButtonFlash] = useState(false);
+  const triggerFitFlash = useCallback(() => setFitButtonFlash(true), []);
+  useEffect(() => {
     if (!fitButtonFlash) return;
     const id = setTimeout(() => setFitButtonFlash(false), FIT_FLASH_DURATION_MS);
     return () => clearTimeout(id);
   }, [fitButtonFlash]);
-  useEffect6(() => {
+  useEffect(() => {
     triggerFitFlash();
   }, [triggerFitFlash]);
-  const handleDeviceChange = useCallback4(
+  const handleDeviceChange = useCallback(
     (e) => {
       api.setDevice(e);
       api.zoomFit();
     },
     [api]
   );
-  const handleZoomFit = useCallback4(() => {
+  const handleZoomFit = useCallback(() => {
     api.zoomFit();
     triggerFitFlash();
   }, [api, triggerFitFlash]);
   if (!api.enabled) {
-    return /* @__PURE__ */ jsx8(Toolbar, { className: "rta-preview-toolbar", children: /* @__PURE__ */ jsx8(Enable, { enabled: false, onSetEnabled: api.setEnabled }) }, TOOL_ID);
+    return /* @__PURE__ */ jsx(Toolbar, { className: "rta-preview-toolbar", children: /* @__PURE__ */ jsx(Enable, { enabled: false, onSetEnabled: api.setEnabled }) }, TOOL_ID);
   }
-  return /* @__PURE__ */ jsxs5(Toolbar, { className: "rta-preview-toolbar", children: [
+  return /* @__PURE__ */ jsxs(Toolbar, { className: "rta-preview-toolbar", children: [
     FIT_BUTTON_FLASH_STYLE,
-    /* @__PURE__ */ jsxs5(Row, { children: [
-      /* @__PURE__ */ jsx8(Enable, { enabled: true, onSetEnabled: api.setEnabled }),
-      /* @__PURE__ */ jsx8(Device, { deviceId: api.deviceId, onDeviceChange: handleDeviceChange })
+    /* @__PURE__ */ jsxs(Row, { children: [
+      /* @__PURE__ */ jsx(Enable, { enabled: true, onSetEnabled: api.setEnabled }),
+      /* @__PURE__ */ jsx(Device, { deviceId: api.deviceId, onDeviceChange: handleDeviceChange })
     ] }),
-    /* @__PURE__ */ jsx8(
+    /* @__PURE__ */ jsx(
       Rotation,
       {
         rotation: api.rotation,
@@ -659,7 +610,7 @@ var Tool = memo7(function Toolbar2() {
         onCycleRotation: api.cycleRotation
       }
     ),
-    /* @__PURE__ */ jsx8(
+    /* @__PURE__ */ jsx(
       Zoom,
       {
         zoomNum: api.zoomNum,
@@ -671,7 +622,7 @@ var Tool = memo7(function Toolbar2() {
         onZoomFit: handleZoomFit
       }
     ),
-    api.isCustom && /* @__PURE__ */ jsx8(
+    api.isCustom && /* @__PURE__ */ jsx(
       CustomDimensions,
       {
         customWidth: api.customWidth,
@@ -680,21 +631,18 @@ var Tool = memo7(function Toolbar2() {
         onCustomHeightChange: api.setCustomHeight
       }
     ),
-    /* @__PURE__ */ jsx8(Download, { deviceLabel: api.device?.label, deviceId: api.deviceId })
+    /* @__PURE__ */ jsx(Download, { deviceLabel: api.device?.label, deviceId: api.deviceId })
   ] }, TOOL_ID);
 });
-
-// src/ui/Manager.tsx
-import { jsx as jsx9 } from "react/jsx-runtime";
-addons2.register(ADDON_ID, () => {
-  addons2.add(`${ADDON_ID}/toolbar`, {
+addons.register(ADDON_ID, () => {
+  addons.add(`${ADDON_ID}/toolbar`, {
     type: types.TOOL,
     title: "\u1E5Ata (\u090B\u0924) - Storybook Preview",
-    match: ({ viewMode }) => viewMode === "story",
-    render: () => /* @__PURE__ */ jsx9(Tool, {})
+    match: ({ tabId, viewMode }) => !tabId && viewMode === "story",
+    render: () => /* @__PURE__ */ jsx(Tool, {})
   });
 });
-export {
-  Tool
-};
+
+export { Tool };
+//# sourceMappingURL=manager.js.map
 //# sourceMappingURL=manager.js.map

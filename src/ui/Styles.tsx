@@ -1,4 +1,4 @@
-import { styled } from "@storybook/theming";
+import { styled } from "storybook/theming";
 
 /** Toolbar button default text color (matches Storybook toolbar). */
 const TOOLBAR_BUTTON_COLOR = "rgb(115, 130, 140)";

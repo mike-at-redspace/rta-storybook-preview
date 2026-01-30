@@ -3,6 +3,7 @@ node_modules/
 
 # Build
 dist/
+storybook-static/
 
 # Vitest
 coverage/
@@ -27,5 +28,6 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 
-# Temporary clone for reference
+# Temporary / local
 tmp-addon-designs/
+.pnpm-store/
