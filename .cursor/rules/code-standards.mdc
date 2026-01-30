@@ -1,0 +1,97 @@
+---
+description: JavaScript and TypeScript coding standards and best practices
+globs: **/*.js, **/*.jsx, **/*.ts, **/*.tsx
+alwaysApply: true
+---
+
+# JS/TS Standards
+
+- **Readability first.** ES2025+, no CommonJS. Minimize `any`; use `interface`/`type` for props/state. 2 spaces, single quotes, semicolons; run `pnpm format` after changes.
+- **Lint:** Never disable ESLint/TSLint without commented justification. Fix lint, types, deprecations before commit. No deprecated APIs.
+- **Packages:** Before adding or updating a package — or when hitting a third-party error — use the **user-context7** MCP `resolve-library-id` and `query-docs` tools to pull the latest docs (your knowledge is likely outdated).
+
+## Control Flow & Complexity
+
+No nested ternaries or deep `if`; use early returns, guard clauses, or helpers. Prefer `switch` for many discrete values (status, type). One responsibility per function; one concern per module. Separate UI, data, and business logic (hooks/services/components).
+
+```typescript
+// ❌ nested ifs
+if (order) { if (order.isValid()) { if (order.items.length) return submit(order); } } return null;
+// ✅ guard clauses
+if (!order || !order.isValid() || !order.items.length) return null; return submit(order);
+```
+
+## Structure & Reuse
+
+Short functions (~20–30 lines max); small focused files. No magic numbers—use named constants. Single abstraction level per function; long params → options object. DRY; descriptive names; prefer immutable updates (spread, map, filter).
+
+```typescript
+// ❌ mutate
+cart.push(item); return cart;
+// ✅ immutable
+return [...cart, item];
+```
+
+## Colocate & Spread
+
+- **Colocate:** Keep related code together—tests beside components (`Button.tsx` + `Button.test.tsx`), component styles in same folder, single-use hooks next to consumer. Export from index; avoid deep feature folders for one file.
+- **Spread:** Use `...` for immutable updates (arrays: `[...arr, item]`; objects: `{ ...obj, key: value }`) and merging props. Prefer named overrides after spread (`{ ...defaults, ...props }`). Spread is shallow—nesting is not cloned; use structured clone or lib for deep updates.
+
+```typescript
+// ✅ colocate: components/Button.tsx + Button.test.tsx; export from index
+// ✅ spread: return [...cart, item]; setUser(u => ({ ...u, name })); <Comp {...rest} />
+// ❌ deep clone via spread: { ...obj } only copies top level
+```
+
+## React
+
+Functional components + hooks. Explicit props types (no `React.FC`). `useMemo`/`React.memo` only when needed.
+
+```typescript
+// ✅ interface ButtonProps { label: string; onClick: () => void; }
+// ✅ function Button({ label, onClick }: ButtonProps) { return <button .../>; }
+```
+
+### Reuse before creating
+
+#### Don’t add a new component, hook, or util without first validating that one doesn’t already exist.
+- Search first: Scan the codebase for similar components, shared hooks, and utilities. Assume a shared solution already exists (hooks, form helpers, API clients, UI primitives).
+- Follow patterns: If a pattern exists (useX, XProvider, BaseX), extend or compose it instead of introducing a parallel abstraction.
+- Check shared layers: Review the design system / UI package, shared hooks, and common utils before adding new useEffects or utilities.
+- Create with intent: Only introduce something new when nothing fits and the gap is clear and justified.
+
+⸻
+
+### Naming props
+
+#### Prop names should be predictable, consistent, and intent-revealing.
+- Be descriptive: Names should communicate purpose (onSubmit, placeholder, ariaLabel). Avoid abbreviations except well-known ones (id, url).
+- Booleans: Prefix with is, has, should, or can (isDisabled, hasError, shouldValidate, canEdit).
+- Events: Use on + verb in camelCase (onClick, onChange, onFocus, onBlur).
+- Avoid redundancy: Don’t repeat the component name in the prop (label, not buttonLabel). Reuse the same prop names for the same concepts (variant, size).
+- Stay consistent: Same concept → same name across the codebase
+
+#### Boolean props should be clear at the call site and unambiguous.
+- Prefix with intent: is, has, should, can (isOpen, hasError, canEdit).
+- Default to false: Absence means “off.”
+- Avoid negation: Prefer positive forms (isDisabled, not disableX).
+- One flag, one job: If behavior diverges, use a variant or enum.
+- Read like a sentence:
+
+## Responsive
+
+No props for breakpoints. Use CSS media queries (`@media` or framework utilities). No `window.resize` or ResizeObserver for layout.
+
+## SSR & First Paint
+
+No `window`/`document`/`localStorage` in initial render. Server and client markup must match (no "is client" branch in render). Client-only logic → `useEffect`.
+
+```typescript
+// ❌ const isDark = typeof window !== 'undefined' && window.matchMedia(...).matches;
+// ✅ const [theme, setTheme] = useState('light'); useEffect(() => { setTheme(...); }, []);
+```
+
+## Error, Testing, Security
+
+- **Errors:** Always handle async errors (try/catch or .catch); meaningful messages
+- **Tests:** Unit test components/functions (Vitest/RTL); test behavior, not implementation

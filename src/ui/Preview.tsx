@@ -1,0 +1,136 @@
+import type React from "react";
+import { FRAME_STYLE, SIZE_OVERLAY_STYLE } from "../constants";
+import { usePreviewViewport } from "../hooks";
+import { THIN_SCROLLBAR_STYLE } from "./Styles";
+
+// -----------------------------------------------------------------------------
+// Types
+// -----------------------------------------------------------------------------
+
+export type PreviewViewportState = ReturnType<typeof usePreviewViewport>;
+
+interface PreviewViewProps {
+  viewport: PreviewViewportState;
+  children: React.ReactNode;
+}
+
+function PreviewView({ viewport: v, children }: PreviewViewProps) {
+  if (!v.enabled) {
+    return <>{children}</>;
+  }
+
+  const viewport = (
+    <div style={v.viewportStyle} className="rta-preview-viewport">
+      {children}
+    </div>
+  );
+
+  const scaledWrapperStyle: React.CSSProperties =
+    v.isConstrained && v.scaledWidth > 0 && v.scaledHeight > 0
+      ? {
+          width: v.scaledWidth,
+          height: v.scaledHeight,
+          overflow: "hidden" as const,
+          position: "relative" as const,
+          flexShrink: 0,
+        }
+      : {};
+
+  const content =
+    v.isConstrained && v.scaledWidth > 0 && v.scaledHeight > 0 ? (
+      <div style={scaledWrapperStyle} className="rta-preview-scaled-wrapper">
+        {viewport}
+      </div>
+    ) : (
+      viewport
+    );
+
+  return (
+    <div
+      ref={v.containerRef}
+      style={v.stageStyle}
+      className="rta-preview-stage"
+      onPointerDown={v.handlePointerDown}
+    >
+      {THIN_SCROLLBAR_STYLE}
+      <div style={{ position: "relative", display: "inline-flex" }}>
+        {v.showFrame && v.isConstrained ? (
+          <div style={FRAME_STYLE} className="rta-preview-device-frame">
+            {content}
+          </div>
+        ) : (
+          content
+        )}
+        {v.showSize && v.isConstrained && (
+          <output
+            style={SIZE_OVERLAY_STYLE}
+            aria-live="polite"
+            aria-label={`Viewport dimensions: ${v.dimensionsLabel}`}
+          >
+            {v.dimensionsLabel}
+          </output>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Component (calls hook; use inside a story)
+// -----------------------------------------------------------------------------
+
+/** Props for the Preview component. */
+interface PreviewProps {
+  /** Story content to render inside the viewport. */
+  children: React.ReactNode;
+}
+
+/**
+ * RTA Preview stage: wraps story content in a viewport with device dimensions,
+ * zoom, pan (when zoomed), optional frame and dimensions overlay.
+ * Reads and writes state via Storybook globals. Use inside a story or as a wrapper.
+ *
+ * @param props - Component props.
+ * @param props.children - Story content to render inside the viewport.
+ * @returns JSX for the preview stage.
+ */
+export function Preview({ children }: PreviewProps) {
+  const viewport = usePreviewViewport();
+  return <PreviewView viewport={viewport}>{children}</PreviewView>;
+}
+
+// -----------------------------------------------------------------------------
+// Decorator (hook must run here so Storybook allows it)
+// -----------------------------------------------------------------------------
+
+/** Story context shape for viewMode; full type lives in Storybook. */
+interface StoryContextViewMode {
+  viewMode?: string;
+}
+
+/**
+ * Storybook decorator that wraps stories in the RTA preview viewport.
+ * Does not wrap on docs view (viewMode === "docs") so docs pages are not broken.
+ * Preview hooks (useGlobals) must be called inside the decorator function, not in a child.
+ * Use in `.storybook/preview.ts` so all stories get the viewport and toolbar controls.
+ *
+ * @param Story - The story component to render inside the viewport.
+ * @param context - Storybook context; viewMode "docs" skips the wrapper.
+ * @returns JSX wrapping Story in the Preview viewport, or Story alone on docs.
+ */
+export const withRtaPreview = (Story: React.ComponentType, context: StoryContextViewMode) => {
+  const viewport = usePreviewViewport();
+  if (context?.viewMode === "docs") {
+    return <Story />;
+  }
+  return (
+    <PreviewView viewport={viewport}>
+      <Story />
+    </PreviewView>
+  );
+};
+
+/** @deprecated Use Preview instead. Kept for backwards compatibility. */
+export { Preview as RtaPreviewDecorator };
+
+export { getRtaPreviewPreviewConfig, initialGlobals } from "../initial-globals";

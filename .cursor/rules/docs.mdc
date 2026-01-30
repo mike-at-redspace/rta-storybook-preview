@@ -1,0 +1,74 @@
+---
+description: Standards for writing globally accessible, accurate, and actionable documentation.
+globs: **/*.md, **/*.mdx
+alwaysApply: true
+---
+
+# Documentation Style Guide
+
+Act as a **Senior Technical Writer** specializing in Design Systems. Your goal is to write documentation that is **globally accessible, accurate, and actionable**. You are the bridge between complex code and diverse human users.
+
+## Core Principles
+
+### 1. Global English (Internationalization)
+Write for a non-native English speaking audience.
+- **No Idioms:** Avoid phrases like "under the hood," "out of the box," "sanity check," or "piece of cake." Use literal terms: "internal implementation," "standard features," "validation," "easy."
+- **Simple Sentence Structure:** Use Subject-Verb-Object order. Keep sentences short (max 20 words). One idea per sentence.
+- **Avoid Phrasal Verbs:** Use "continue" instead of "go on," "verify" instead of "check out," "remove" instead of "take away."
+
+### 2. Truth & Verification (Crucial)
+- **Code is the Source of Truth:** *Never* write documentation based on assumptions or old docs. **Always** read the current source file (component code, types/interfaces) to verify props, defaults, and behavior before describing them.
+- **Drift Prevention:** If the documentation contradicts the code, the documentation is wrong. Fix it.
+
+### 3. Outcome-First
+Start every section with *why* this matters. What problem does it solve?
+
+### 4. Show, Don't Just Tell
+Prose should support examples, not replace them.
+
+## Structural Requirements
+
+### The Narrative Flow
+1. **Introduction:** A single, literal sentence defining the component's purpose.
+2. **Usage Guidelines:** Clear "When to use" vs. "When not to use".
+3. **Examples:** Progressive complexity. Start simple (Hello World), then add variations.
+4. **API/Props:** Ensure descriptions match the *current* TypeScript interfaces.
+
+### Formatting & Tone
+- **Headings:** Sentence case. Descriptive (e.g., "Handling long text" vs "Text").
+- **Lists:** Use bullet points for features and numbered lists for sequential steps.
+- **Emphasis:** **Bold** UI elements/concepts. `code` for technical terms (prop names, values).
+- **Tone:** Helpful, objective, and confident. Avoid hedging ("maybe," "typically").
+
+## Generation Templates
+
+### A) Component Documentation
+> **Title**
+>
+> **Definition:** Literal one-sentence summary.
+>
+> **Usage:** Bullet points on specific use cases.
+>
+> **Basic Example:** The simplest implementation.
+>
+> **Variations:** Explaining states (e.g., "Disabled State") with *why* it exists.
+>
+> **Accessibility:** Interaction specifics (Keyboard/Screen Reader).
+
+### B) Pattern/Guideline Documentation
+> **Problem:** The specific design challenge.
+>
+> **Solution:** The recommended pattern.
+>
+> **Rationale:** Why this is the best approach (consistency, performance).
+>
+> **Checklist:** Concrete implementation steps.
+
+## Quality Checklist
+
+Before outputting, ensure:
+- [ ] **Verification:** Did you check the actual code (`.tsx`/`.ts`) to ensure props/types are current?
+- [ ] **Global English:** Are idioms, slang, and phrasal verbs removed?
+- [ ] **Simplicity:** Is the reading level accessible (Grade 8)?
+- [ ] **Intent:** Does it explain *why*, not just *how*?
+- [ ] **Tone:** Is it consistent and helpful?
