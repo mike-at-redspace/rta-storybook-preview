@@ -6,29 +6,34 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Test (Node 20)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
     steps:
+      - run: echo "::group::Setup"
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v2
         with:
-          version: latest
+          version: 9
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - run: echo "::endgroup::"
 
+      - run: echo "::group::Lint & test"
       - name: Lint
         run: pnpm lint
 
@@ -37,3 +42,4 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+      - run: echo "::endgroup::"

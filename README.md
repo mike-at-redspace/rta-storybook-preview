@@ -1,5 +1,7 @@
 # Ṛta (ऋत) - Storybook Preview
 
+[![npm version](https://img.shields.io/npm/v/rta-preview-addon.svg)](https://www.npmjs.com/package/rta-preview-addon) [![Test & Lint](https://github.com/mike-at-redspace/rta-storybook-preview/actions/workflows/test.yml/badge.svg)](https://github.com/mike-at-redspace/rta-storybook-preview/actions/workflows/test.yml)
+
 Storybook addon for testing components across device types and sizes.
 
 Preview components on mobile phones, tablets, laptops, and desktops. Control device rotation, zoom, and custom dimensions. See exact pixel dimensions and optional device frames. All settings save automatically when switching stories.

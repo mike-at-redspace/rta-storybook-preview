@@ -103,7 +103,7 @@
     "url": "https://github.com/mike-at-redspace/rta-storybook-preview/issues"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
