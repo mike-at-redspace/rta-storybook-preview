@@ -15,7 +15,7 @@ import {
   RTA_PREVIEW_ZOOM,
 } from "../constants";
 import { DEVICES, type DeviceId } from "../devices";
-import { buildViewportTransform, computeScale, getViewportDimensions } from "../lib";
+import { computeScale, getViewportDimensions } from "../lib";
 import { useContainerSize } from "./useContainerSize";
 import { useDebouncedResize } from "./useDebouncedResize";
 import { usePanWhenZoomed } from "./usePanWhenZoomed";
@@ -63,23 +63,33 @@ export function usePreviewViewport() {
 
   const scale = useMemo(
     () =>
-      computeScale(viewportWidth, viewportHeight, zoom, containerSize.width, containerSize.height),
+      computeScale(
+        viewportWidth,
+        viewportHeight,
+        zoom,
+        containerSize.width,
+        containerSize.height,
+        LAYOUT_CONFIG.fitMargin,
+      ),
     [viewportWidth, viewportHeight, zoom, containerSize.width, containerSize.height],
   );
+  const scaledWidth = Math.round(viewportWidth * scale);
+  const scaledHeight = Math.round(viewportHeight * scale);
   const isZoomedIn = scale > 1;
+  const contentOverflows = scaledWidth > containerSize.width || scaledHeight > containerSize.height;
+  const canPan = isZoomedIn || contentOverflows;
   const { pan, isDragging, handlePointerDown } = usePanWhenZoomed(
-    isZoomedIn,
+    canPan,
     deviceId,
     effectiveRotation,
     zoom,
   );
-  const transform = useMemo(
-    () => buildViewportTransform(pan, scale, isZoomedIn),
-    [pan, scale, isZoomedIn],
+  const viewportTransform = useMemo(() => (scale !== 1 ? `scale(${scale})` : undefined), [scale]);
+  const deviceWrapperTransform = useMemo(
+    () =>
+      canPan && (pan.x !== 0 || pan.y !== 0) ? `translate(${pan.x}px, ${pan.y}px)` : undefined,
+    [canPan, pan.x, pan.y],
   );
-
-  const scaledWidth = Math.round(viewportWidth * scale);
-  const scaledHeight = Math.round(viewportHeight * scale);
 
   const stageStyle: React.CSSProperties = useMemo(
     () => ({
@@ -97,14 +107,14 @@ export function usePreviewViewport() {
       transition: "transform 240ms cubic-bezier(0.4, 0, 0.2, 1)",
       transformOrigin: "center center",
       ...(stageBackground && { background: STAGE_GRADIENT }),
-      ...(isZoomedIn && {
+      ...(canPan && {
         cursor: isDragging ? ("grabbing" as const) : ("grab" as const),
         userSelect: "none" as const,
         touchAction: "none" as const,
       }),
       ...(isDragging && { overflow: "hidden" }),
     }),
-    [isZoomedIn, isDragging],
+    [canPan, isDragging],
   );
 
   const viewportStyle: React.CSSProperties = useMemo(
@@ -117,8 +127,8 @@ export function usePreviewViewport() {
             width: viewportWidth,
             height: viewportHeight,
             flexShrink: 0,
-            ...(transform && {
-              transform,
+            ...(viewportTransform && {
+              transform: viewportTransform,
               transformOrigin: "0 0" as const,
             }),
           }
@@ -129,7 +139,19 @@ export function usePreviewViewport() {
             width: "100%",
             minHeight: "100%",
           },
-    [isConstrained, viewportWidth, viewportHeight, transform],
+    [isConstrained, viewportWidth, viewportHeight, viewportTransform],
+  );
+
+  const deviceWrapperStyle: React.CSSProperties = useMemo(
+    () => ({
+      position: "relative" as const,
+      display: "inline-flex" as const,
+      ...(deviceWrapperTransform && {
+        transform: deviceWrapperTransform,
+        transformOrigin: "center center",
+      }),
+    }),
+    [deviceWrapperTransform],
   );
 
   const dimensionsLabel = isConstrained ? `${viewportWidth} × ${viewportHeight}` : "—";
@@ -139,6 +161,7 @@ export function usePreviewViewport() {
     containerRef,
     stageStyle: enabled ? stageStyle : {},
     viewportStyle: enabled ? viewportStyle : {},
+    deviceWrapperStyle: enabled ? deviceWrapperStyle : {},
     scale: enabled ? scale : 1,
     scaledWidth: enabled && isConstrained ? scaledWidth : 0,
     scaledHeight: enabled && isConstrained ? scaledHeight : 0,

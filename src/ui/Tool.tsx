@@ -1,9 +1,20 @@
-import { memo } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { TOOL_ID } from "../constants";
 import type { DeviceId } from "../devices";
 import { DEVICE_CATEGORIES, DEVICES } from "../devices";
 import { useRtaPreview } from "../hooks";
-import { Button, Input, Label, Row, Select, Toolbar } from "./Styles";
+import {
+  Button,
+  FIT_BUTTON_FLASH_STYLE,
+  Input,
+  Label,
+  Row,
+  Select,
+  Toolbar,
+  ZoomPercent,
+} from "./Styles";
+
+const FIT_FLASH_DURATION_MS = 500;
 
 /** Phone/mobile icon for the RTA Preview toggle. */
 function PhoneIcon({ size = 16 }: { size?: number }) {
@@ -40,6 +51,21 @@ function PhoneIcon({ size = 16 }: { size?: number }) {
 
 export const Tool = memo(function RtaPreviewTool() {
   const api = useRtaPreview();
+  const [fitButtonFlash, setFitButtonFlash] = useState(false);
+
+  const triggerFitFlash = useCallback(() => {
+    setFitButtonFlash(true);
+  }, []);
+
+  useEffect(() => {
+    if (!fitButtonFlash) return;
+    const id = setTimeout(() => setFitButtonFlash(false), FIT_FLASH_DURATION_MS);
+    return () => clearTimeout(id);
+  }, [fitButtonFlash]);
+
+  useEffect(() => {
+    triggerFitFlash();
+  }, [triggerFitFlash]);
 
   if (!api.enabled) {
     return (
@@ -58,6 +84,7 @@ export const Tool = memo(function RtaPreviewTool() {
 
   return (
     <Toolbar key={TOOL_ID} className="rta-preview-toolbar">
+      {FIT_BUTTON_FLASH_STYLE}
       <Row>
         <Button
           type="button"
@@ -70,7 +97,10 @@ export const Tool = memo(function RtaPreviewTool() {
         <Select
           id="rta-preview-device"
           value={api.deviceId}
-          onChange={api.setDevice}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            api.setDevice(e);
+            api.zoomFit();
+          }}
           aria-label="Select device viewport"
         >
           {DEVICE_CATEGORIES.map(({ label: groupLabel, pattern }) => {
@@ -114,6 +144,18 @@ export const Tool = memo(function RtaPreviewTool() {
         </Button>
         <Button
           type="button"
+          onClick={() => {
+            api.zoomFit();
+            triggerFitFlash();
+          }}
+          aria-label="Fit"
+          title="Fit to view"
+          data-flashing={fitButtonFlash ? "true" : undefined}
+        >
+          Fit
+        </Button>
+        <Button
+          type="button"
           onClick={api.zoomIn}
           disabled={!api.canZoomIn}
           aria-label="Zoom in"
@@ -121,9 +163,9 @@ export const Tool = memo(function RtaPreviewTool() {
         >
           +
         </Button>
-        <Button type="button" onClick={api.zoomFit} aria-label="Fit" title="Fit to view">
-          Fit
-        </Button>
+        <ZoomPercent aria-label="Zoom percentage" role="status">
+          {`${Math.round(api.zoomNum * 100)}%`}
+        </ZoomPercent>
       </Row>
 
       {api.isCustom && (

@@ -50,10 +50,10 @@ function PreviewView({ viewport: v, children }: PreviewViewProps) {
       ref={v.containerRef}
       style={v.stageStyle}
       className="rta-preview-stage"
-      onPointerDown={v.handlePointerDown}
+      onPointerDownCapture={v.handlePointerDown}
     >
       {THIN_SCROLLBAR_STYLE}
-      <div style={{ position: "relative", display: "inline-flex" }}>
+      <div style={v.deviceWrapperStyle}>
         {v.showFrame && v.isConstrained ? (
           <div style={FRAME_STYLE} className="rta-preview-device-frame">
             {content}

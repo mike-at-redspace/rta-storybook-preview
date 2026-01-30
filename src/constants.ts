@@ -49,10 +49,12 @@ export const ZOOM_CONFIG = {
  * Layout config for preview stage.
  * - padding: reserved for future layout calculations (POC parity).
  * - resizeDebounceMs: debounce delay (ms) for resize-triggered updates.
+ * - fitMargin: margin (px) reserved on each side when computing fit scale; content fits inside (container - 2*fitMargin).
  */
 export const LAYOUT_CONFIG = {
   padding: 128,
   resizeDebounceMs: 150,
+  fitMargin: 32,
 } as const;
 
 // -----------------------------------------------------------------------------

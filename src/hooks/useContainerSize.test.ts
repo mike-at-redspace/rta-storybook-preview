@@ -5,7 +5,7 @@ import { useContainerSize } from "./useContainerSize";
 describe("useContainerSize", () => {
   beforeEach(() => {
     // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
       unobserve: vi.fn(),
       disconnect: vi.fn(),
@@ -34,13 +34,28 @@ describe("useContainerSize", () => {
   it("should update size when parent has dimensions", () => {
     const { result } = renderHook(() => useContainerSize());
     const parentDiv = document.createElement("div");
-    Object.defineProperty(parentDiv, "clientWidth", { value: 300, configurable: true });
-    Object.defineProperty(parentDiv, "clientHeight", { value: 400, configurable: true });
+    Object.defineProperty(parentDiv, "clientWidth", {
+      value: 300,
+      configurable: true,
+    });
+    Object.defineProperty(parentDiv, "clientHeight", {
+      value: 400,
+      configurable: true,
+    });
 
     const childDiv = document.createElement("div");
-    Object.defineProperty(childDiv, "clientWidth", { value: 100, configurable: true });
-    Object.defineProperty(childDiv, "clientHeight", { value: 200, configurable: true });
-    Object.defineProperty(childDiv, "parentElement", { value: parentDiv, configurable: true });
+    Object.defineProperty(childDiv, "clientWidth", {
+      value: 100,
+      configurable: true,
+    });
+    Object.defineProperty(childDiv, "clientHeight", {
+      value: 200,
+      configurable: true,
+    });
+    Object.defineProperty(childDiv, "parentElement", {
+      value: parentDiv,
+      configurable: true,
+    });
 
     act(() => {
       result.current.containerRef.current = childDiv;
@@ -54,7 +69,7 @@ describe("useContainerSize", () => {
   it("should cleanup ResizeObserver on unmount", () => {
     const { unmount } = renderHook(() => useContainerSize());
     const disconnect = vi.fn();
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
       unobserve: vi.fn(),
       disconnect,

@@ -73,6 +73,7 @@ export function useRtaPreview() {
       const key = e.target.value as DeviceId;
       safeUpdate({
         [RTA_PREVIEW_DEVICE]: key,
+        [RTA_PREVIEW_ZOOM]: "fit" as const,
         ...(DEVICES[key] && !DEVICES[key].rotatable ? { [RTA_PREVIEW_ROTATE]: 0 as Rotation } : {}),
       });
     },
@@ -82,7 +83,7 @@ export function useRtaPreview() {
   const cycleRotation = useCallback(() => {
     if (!rotatable) return;
     const next: Rotation = rotation === 270 ? 0 : ((rotation + 90) as Rotation);
-    safeUpdate({ [RTA_PREVIEW_ROTATE]: next });
+    safeUpdate({ [RTA_PREVIEW_ROTATE]: next, [RTA_PREVIEW_ZOOM]: "fit" as const });
   }, [rotation, rotatable, safeUpdate]);
 
   const zoomIn = useCallback(() => {

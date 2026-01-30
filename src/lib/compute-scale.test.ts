@@ -22,8 +22,13 @@ describe("computeScale", () => {
     expect(computeScale(100, 100, 5, 500, 500)).toBe(3);
   });
 
-  it("returns fit scale min of scaleX, scaleY, 1", () => {
+  it("returns fit scale min of scaleX, scaleY, 1 (fit to container, never zoom in)", () => {
     expect(computeScale(200, 200, "fit", 400, 400)).toBe(1);
     expect(computeScale(400, 400, "fit", 200, 200)).toBe(0.5);
+  });
+
+  it("uses fit margin to reduce effective container when zoom is fit", () => {
+    expect(computeScale(400, 400, "fit", 200, 200, 0)).toBe(0.5);
+    expect(computeScale(400, 400, "fit", 200, 200, 20)).toBe((200 - 40) / 400);
   });
 });

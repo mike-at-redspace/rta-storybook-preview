@@ -35,6 +35,24 @@ export const THIN_SCROLLBAR_STYLE = (
   />
 );
 
+/** CSS for Fit button flash when autofit is called (border highlight that fades out). */
+export const FIT_BUTTON_FLASH_STYLE = (
+  <style
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: static addon CSS only, no user input
+    dangerouslySetInnerHTML={{
+      __html: `
+@keyframes rta-fit-flash {
+  0% { box-shadow: 0 0 0 2px rgba(2, 156, 253, 0.7); }
+  100% { box-shadow: none; }
+}
+.rta-preview-toolbar button[data-flashing="true"] {
+  animation: rta-fit-flash 500ms ease-out forwards;
+}
+`,
+    }}
+  />
+);
+
 /** Resolve toolbar/bar colors so the addon matches Storybook toolbar in light and dark. */
 function getToolbarColors(theme: {
   base?: string;
@@ -97,6 +115,18 @@ export const Label = styled.label(({ theme }) => {
     fontSize: fontSize(theme),
     color: muted,
     marginRight: 4,
+  };
+});
+
+/** Readonly zoom percentage display in toolbar (muted, same font size). */
+export const ZoomPercent = styled.span(({ theme }) => {
+  const { muted } = getInputColors(theme);
+  return {
+    fontSize: fontSize(theme),
+    color: muted,
+    minWidth: 36,
+    textAlign: "right" as const,
+    userSelect: "none" as const,
   };
 });
 

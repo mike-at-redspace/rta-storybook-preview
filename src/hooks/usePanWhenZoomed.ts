@@ -3,18 +3,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Rotation } from "../constants";
 
 /**
- * Pan state and pointer handlers for drag-to-pan when zoomed in.
+ * Pan state and pointer handlers for drag-to-pan when pan is enabled.
  * Resets pan when deviceId, rotation, or zoom change.
  * Cleans up window listeners on unmount if drag was in progress.
  *
- * @param isZoomedIn - Whether the viewport is zoomed in (pan only active when true).
+ * @param isPanEnabled - Whether pan is active (zoomed in or content overflows).
  * @param deviceId - Current device id (used as dep to reset pan).
  * @param rotation - Current rotation in degrees (used as dep to reset pan).
  * @param zoom - Current zoom (used as dep to reset pan).
  * @returns Object with pan { x, y }, isDragging, and handlePointerDown handler.
  */
 export function usePanWhenZoomed(
-  isZoomedIn: boolean,
+  isPanEnabled: boolean,
   deviceId: string,
   rotation: Rotation,
   zoom: "fit" | number,
@@ -26,6 +26,7 @@ export function usePanWhenZoomed(
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const lastClientRef = useRef({ x: 0, y: 0 });
+  const pointerIdRef = useRef<number | null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
 
   // Reset pan when viewport context changes (deviceId, rotation, zoom are intentional deps)
@@ -44,8 +45,11 @@ export function usePanWhenZoomed(
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!isZoomedIn || e.button !== 0) return;
+      if (!isPanEnabled || e.button !== 0) return;
       e.preventDefault();
+      const target = e.currentTarget as HTMLElement;
+      pointerIdRef.current = e.pointerId;
+      target.setPointerCapture(e.pointerId);
       lastClientRef.current = { x: e.clientX, y: e.clientY };
       setIsDragging(true);
       const onMove = (ev: PointerEvent) => {
@@ -54,19 +58,29 @@ export function usePanWhenZoomed(
         lastClientRef.current = { x: ev.clientX, y: ev.clientY };
         setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       };
-      const onUp = (): void => {
+      const doCleanup = (): void => {
+        const id = pointerIdRef.current;
+        if (id !== null) {
+          pointerIdRef.current = null;
+          try {
+            target.releasePointerCapture(id);
+          } catch {
+            // Pointer may already be released.
+          }
+        }
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
         window.removeEventListener("pointercancel", onUp);
         cleanupRef.current = null;
         setIsDragging(false);
       };
-      cleanupRef.current = onUp;
+      const onUp = (): void => doCleanup();
+      cleanupRef.current = doCleanup;
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
     },
-    [isZoomedIn],
+    [isPanEnabled],
   );
 
   return { pan, isDragging, handlePointerDown };
