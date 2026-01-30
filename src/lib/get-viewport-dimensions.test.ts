@@ -44,4 +44,23 @@ describe("getViewportDimensions", () => {
       height: 844,
     });
   });
+
+  it("uses preset dimensions as fallback for custom device with missing dimensions", () => {
+    // When custom device but width/height undefined, use preset minimums (100)
+    const result = getViewportDimensions("custom", undefined, undefined);
+    expect(result.width).toBeGreaterThanOrEqual(100);
+    expect(result.height).toBeGreaterThanOrEqual(100);
+  });
+
+  it("enforces minimum 100px for custom device with undefined dimensions", () => {
+    // When custom device and width is undefined, uses Math.max(100, preset.width)
+    const result1 = getViewportDimensions("custom", undefined, 200);
+    expect(result1.width).toBeGreaterThanOrEqual(100);
+    expect(result1.height).toBe(200);
+
+    // When custom device and height is undefined, uses Math.max(100, preset.height)
+    const result2 = getViewportDimensions("custom", 200, undefined);
+    expect(result2.width).toBe(200);
+    expect(result2.height).toBeGreaterThanOrEqual(100);
+  });
 });

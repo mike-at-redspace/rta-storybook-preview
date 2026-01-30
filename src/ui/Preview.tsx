@@ -1,12 +1,10 @@
+import { addons } from "@storybook/preview-api";
+import html2canvas from "html2canvas";
 import type React from "react";
-import { FRAME_STYLE, SIZE_OVERLAY_STYLE } from "../constants";
+import { useEffect, useRef } from "react";
+import { FRAME_STYLE, RTA_PREVIEW_DOWNLOAD_VIEW, SIZE_OVERLAY_STYLE } from "../constants";
 import { usePreviewViewport } from "../hooks";
 import { THIN_SCROLLBAR_STYLE } from "./Styles";
-
-// -----------------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------------
-
 export type PreviewViewportState = ReturnType<typeof usePreviewViewport>;
 
 interface PreviewViewProps {
@@ -14,7 +12,42 @@ interface PreviewViewProps {
   children: React.ReactNode;
 }
 
+/** Preview view for the RTA Preview addon.
+ *
+ * @param viewport - The viewport state.
+ * @param children - The children to render.
+ * @returns The preview view.
+ */
 function PreviewView({ viewport: v, children }: PreviewViewProps) {
+  const containerRefRef = useRef(v.containerRef);
+  const enabledRef = useRef(v.enabled);
+  containerRefRef.current = v.containerRef;
+  enabledRef.current = v.enabled;
+
+  useEffect(() => {
+    const channel = addons.getChannel();
+    const handler = (payload: { filename?: string } | undefined) => {
+      if (!enabledRef.current || !containerRefRef.current?.current) return;
+      const filename = payload?.filename ?? "preview.png";
+      const element = containerRefRef.current.current;
+      html2canvas(element, { useCORS: true })
+        .then((canvas) => {
+          canvas.toBlob((blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+          }, "image/png");
+        })
+        .catch(() => {});
+    };
+    channel.on(RTA_PREVIEW_DOWNLOAD_VIEW, handler);
+    return () => channel.off(RTA_PREVIEW_DOWNLOAD_VIEW, handler);
+  }, []);
+
   if (!v.enabled) {
     return <>{children}</>;
   }
@@ -74,10 +107,6 @@ function PreviewView({ viewport: v, children }: PreviewViewProps) {
     </div>
   );
 }
-
-// -----------------------------------------------------------------------------
-// Component (calls hook; use inside a story)
-// -----------------------------------------------------------------------------
 
 /** Props for the Preview component. */
 interface PreviewProps {

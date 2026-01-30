@@ -47,13 +47,16 @@
     "test:watch": "vitest",
     "prepare": "node scripts/prepare.js"
   },
+  "dependencies": {
+    "html2canvas": "^1.4.1"
+  },
   "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
+    "@storybook/components": "^8.0.0 || ^9.0.0",
     "@storybook/manager-api": "^8.0.0 || ^9.0.0",
     "@storybook/preview-api": "^8.0.0 || ^9.0.0",
     "@storybook/theming": "^8.0.0 || ^9.0.0",
-    "@storybook/components": "^8.0.0 || ^9.0.0"
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -64,14 +67,15 @@
     }
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.13",
     "@storybook/components": "^8.6.14",
     "@storybook/manager-api": "^8.6.14",
     "@storybook/preview-api": "^8.6.14",
     "@storybook/theming": "^8.6.14",
     "@testing-library/react": "^14.3.1",
-    "@biomejs/biome": "^2.3.13",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "4.0.18",
     "husky": "^9.1.7",
     "jsdom": "^24.1.1",
     "react": "^19.2.4",

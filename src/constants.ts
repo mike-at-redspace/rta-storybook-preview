@@ -7,6 +7,9 @@ export const ADDON_ID = "rta-preview-addon";
 /** Tool ID for the RTA Preview toolbar item. */
 export const TOOL_ID = "rta-preview-tool";
 
+/** Channel event for requesting a download of the current preview view. */
+export const RTA_PREVIEW_DOWNLOAD_VIEW = "rta-preview/download-view";
+
 /** Global key for the selected device preset id. */
 export const RTA_PREVIEW_DEVICE = "rtaPreviewDevice";
 /** Global key for viewport rotation in degrees (0, 90, 180, 270). */

@@ -21,6 +21,7 @@ export default defineConfig([
     sourcemap: true,
     dts: true,
     external: ['react', 'react-dom', '@storybook/preview-api'],
+    noExternal: ['html2canvas'],
     esbuildOptions(options) {
       options.jsx = 'automatic';
     },

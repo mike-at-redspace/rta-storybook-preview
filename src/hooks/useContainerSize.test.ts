@@ -3,13 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useContainerSize } from "./useContainerSize";
 
 describe("useContainerSize", () => {
+  let mockObserverInstance: {
+    observe: ReturnType<typeof vi.fn>;
+    unobserve: ReturnType<typeof vi.fn>;
+    disconnect: ReturnType<typeof vi.fn>;
+  };
+
   beforeEach(() => {
-    // Mock ResizeObserver
-    globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
+    mockObserverInstance = {
       observe: vi.fn(),
       unobserve: vi.fn(),
       disconnect: vi.fn(),
-    }));
+    };
+    globalThis.ResizeObserver = vi.fn().mockImplementation(() => mockObserverInstance);
   });
 
   it("should initialize with width and height 0", () => {
@@ -29,6 +35,11 @@ describe("useContainerSize", () => {
     expect(result.current.containerSize).toBeDefined();
     expect(typeof result.current.containerSize.width).toBe("number");
     expect(typeof result.current.containerSize.height).toBe("number");
+  });
+
+  it("should provide updateSize callback function", () => {
+    const { result } = renderHook(() => useContainerSize());
+    expect(typeof result.current.updateSize).toBe("function");
   });
 
   it("should update size when parent has dimensions", () => {
