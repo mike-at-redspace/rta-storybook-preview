@@ -1,7 +1,7 @@
-import { addons } from "@storybook/preview-api";
 import html2canvas from "html2canvas";
 import type React from "react";
 import { useEffect, useRef } from "react";
+import { addons } from "storybook/preview-api";
 import { FRAME_STYLE, RTA_PREVIEW_DOWNLOAD_VIEW, SIZE_OVERLAY_STYLE } from "../constants";
 import { usePreviewViewport } from "../hooks";
 import { THIN_SCROLLBAR_STYLE } from "./Styles";
@@ -80,7 +80,7 @@ function PreviewView({ viewport: v, children }: PreviewViewProps) {
 
   return (
     <div
-      ref={v.containerRef}
+      ref={v.containerRef as React.RefObject<HTMLDivElement>}
       style={v.stageStyle}
       className="rta-preview-stage"
       onPointerDownCapture={v.handlePointerDown}

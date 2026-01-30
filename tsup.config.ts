@@ -1,37 +1,73 @@
-import { defineConfig } from 'tsup';
+import { defineConfig, type Options } from "tsup";
 
-export default defineConfig([
-  {
-    entry: { manager: 'src/ui/Manager.tsx' },
-    format: ['esm'],
-    target: 'es2020',
-    outDir: 'dist',
-    sourcemap: true,
-    dts: true,
-    external: ['react', 'react-dom', '@storybook/manager-api', '@storybook/theming', '@storybook/components'],
+const NODE_TARGET = "node20.19";
+
+export default defineConfig(async () => {
+  const packageJson = (
+    await import("./package.json", { with: { type: "json" } })
+  ).default as {
+    bundler?: {
+      managerEntries?: string[];
+      previewEntries?: string[];
+      nodeEntries?: string[];
+    };
+  };
+
+  const {
+    managerEntries = [],
+    previewEntries = [],
+    nodeEntries = [],
+  } = packageJson.bundler ?? {};
+
+  const commonConfig: Options = {
+    splitting: true,
+    format: ["esm"],
+    treeshake: true,
+    clean: false,
+    external: ["react", "react-dom", "@storybook/icons"],
     esbuildOptions(options) {
-      options.jsx = 'automatic';
+      options.jsx = "automatic";
     },
-  },
-  {
-    entry: { preview: 'src/ui/Preview.tsx' },
-    format: ['esm'],
-    target: 'es2020',
-    outDir: 'dist',
-    sourcemap: true,
-    dts: true,
-    external: ['react', 'react-dom', '@storybook/preview-api'],
-    noExternal: ['html2canvas'],
-    esbuildOptions(options) {
-      options.jsx = 'automatic';
-    },
-  },
-  {
-    entry: { preset: 'src/preset.ts' },
-    format: ['esm'],
-    target: 'node18',
-    outDir: 'dist',
-    sourcemap: true,
-    dts: false,
-  },
-]);
+  };
+
+  const configs: Options[] = [];
+
+  if (managerEntries.length > 0) {
+    configs.push({
+      ...commonConfig,
+      entry: { manager: managerEntries[0] },
+      platform: "browser",
+      target: "esnext",
+      outDir: "dist",
+      sourcemap: true,
+      dts: false,
+    });
+  }
+
+  if (previewEntries.length > 0) {
+    configs.push({
+      ...commonConfig,
+      entry: { preview: previewEntries[0] },
+      platform: "browser",
+      target: "esnext",
+      outDir: "dist",
+      sourcemap: true,
+      dts: true,
+      noExternal: ["html2canvas"],
+    });
+  }
+
+  if (nodeEntries.length > 0) {
+    configs.push({
+      ...commonConfig,
+      entry: { preset: nodeEntries[0] },
+      platform: "node",
+      target: NODE_TARGET,
+      outDir: "dist",
+      sourcemap: true,
+      dts: false,
+    });
+  }
+
+  return configs;
+});

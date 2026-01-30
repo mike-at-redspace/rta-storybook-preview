@@ -40,12 +40,7 @@ export interface EnableProps {
   onSetEnabled: (value: boolean) => void;
 }
 
-/** Enable button for the RTA Preview addon.
- *
- * @param enabled - Whether the RTA Preview is enabled.
- * @param onSetEnabled - The function to call when the RTA Preview is enabled.
- * @returns The enable button.
- */
+/** Enable button for the RTA Preview addon. Uses custom Button (aria-pressed for state); ToggleButton from storybook/internal/components causes manager-bundle crash (React 19 recentlyCreatedOwnerStacks). */
 export const Enable = memo(function Enable({ enabled, onSetEnabled }: EnableProps) {
   return (
     <Button

@@ -1,3 +1,24 @@
+# Changelog
+
+## [Unreleased]
+
+**Risk: Medium** — Touches Storybook configuration/build/deploy and addon manager runtime (toolbar matching, zoom step). No security- or data-critical logic changed.
+
+### Added
+
+- **Storybook hosting + local config**: `.storybook` setup (`main.ts`, `preview.ts`, `manager.ts`, `local-preset.ts`) to run the addon in Storybook with correct Vite base for GitHub Pages and preview environments.
+- **Automated deployment**: GitHub Actions workflow builds (`pnpm build` + `pnpm build-storybook`) and deploys `storybook-static` to GitHub Pages on push to `main`, and for PRs only when labeled `preview`.
+
+### Changed
+
+- **Addon bundle**: Aligns with Storybook 10 unified imports (`storybook/*`). Toolbar tool now renders only when `!tabId && viewMode === "story"`. Zoom step reduced (0.25 → 0.05) for finer control.
+
+### Fixed
+
+- **Repo hygiene**: `.gitignore` includes `storybook-static/` and local pnpm store paths; `biome.json` excludes pnpm store paths. Build output (`dist/`) no longer committed.
+
+---
+
 # 1.0.0 (2026-01-30)
 
 
@@ -6,8 +27,6 @@
 * initial commit - RTA Preview Storybook addon (v0.1.0) ([2bbe834](https://github.com/mike-at-redspace/rta-storybook-preview/commit/2bbe83490ce8daf5dd67f5d9cc2b982a6f017050))
 * **preview:** enable pan on overflow, add fit margins, and improve z... ([c567285](https://github.com/mike-at-redspace/rta-storybook-preview/commit/c5672854bdf5e083a09113e629a71384fcc741e3))
 * **ui:** add screenshot download with toolbar component refactor ([d541814](https://github.com/mike-at-redspace/rta-storybook-preview/commit/d5418149002607f6b6cfc7ca8e9f1d6e54098c69))
-
-# Changelog
 
 All notable changes to this project will be documented in this file. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to

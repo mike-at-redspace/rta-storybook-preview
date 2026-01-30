@@ -45,7 +45,7 @@ export const DEFAULT_ZOOM: "fit" | number = "fit";
 export const ZOOM_CONFIG = {
   min: 0.1,
   max: 3,
-  step: 0.25,
+  step: 0.05,
 } as const;
 
 /**

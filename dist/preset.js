@@ -1,9 +1,10 @@
+import { fileURLToPath } from 'url';
+
 // src/preset.ts
-import { fileURLToPath } from "url";
 function managerEntries(entry = []) {
   return [...entry, fileURLToPath(import.meta.resolve("rta-preview-addon/manager"))];
 }
-export {
-  managerEntries
-};
+
+export { managerEntries };
+//# sourceMappingURL=preset.js.map
 //# sourceMappingURL=preset.js.map

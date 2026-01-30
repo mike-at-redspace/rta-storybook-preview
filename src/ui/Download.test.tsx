@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { RTA_PREVIEW_DOWNLOAD_VIEW } from "../constants";
 import { Download } from "./Download";
 
 const mockEmit = vi.fn();
 
-vi.mock("@storybook/manager-api", () => ({
+vi.mock("storybook/manager-api", () => ({
   addons: {
     getChannel: () => ({ emit: mockEmit }),
   },

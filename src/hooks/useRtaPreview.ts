@@ -1,6 +1,6 @@
-import { useGlobals, useStorybookApi } from "@storybook/manager-api";
 import type React from "react";
 import { useCallback, useEffect, useRef } from "react";
+import { useGlobals, useStorybookApi } from "storybook/manager-api";
 import {
   ADDON_ID,
   DEFAULT_DEVICE_ID,

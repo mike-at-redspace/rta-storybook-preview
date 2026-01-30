@@ -1,5 +1,5 @@
-import { addons } from "@storybook/manager-api";
 import { memo } from "react";
+import { addons } from "storybook/manager-api";
 import { RTA_PREVIEW_DOWNLOAD_VIEW } from "../constants";
 import { sanitizeFilenameForDownload } from "../lib";
 import { Button } from "./Styles";

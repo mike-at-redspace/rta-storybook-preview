@@ -1,6 +1,6 @@
-import { useGlobals } from "@storybook/preview-api";
 import type React from "react";
 import { useEffect, useMemo } from "react";
+import { useGlobals } from "storybook/preview-api";
 import {
   DEFAULT_DEVICE_ID,
   DEFAULT_ROTATION,

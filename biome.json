@@ -6,7 +6,15 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/dist", "!**/node_modules", "!**/pnpm-lock.yaml", "!**/*.config.ts"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.pnpm-store",
+      "!**/pnpm-store",
+      "!**/pnpm-lock.yaml",
+      "!**/*.config.ts"
+    ]
   },
   "formatter": {
     "enabled": true,
