@@ -1,3 +1,12 @@
+# 1.0.0 (2026-01-30)
+
+
+### Features
+
+* initial commit - RTA Preview Storybook addon (v0.1.0) ([2bbe834](https://github.com/mike-at-redspace/rta-storybook-preview/commit/2bbe83490ce8daf5dd67f5d9cc2b982a6f017050))
+* **preview:** enable pan on overflow, add fit margins, and improve z... ([c567285](https://github.com/mike-at-redspace/rta-storybook-preview/commit/c5672854bdf5e083a09113e629a71384fcc741e3))
+* **ui:** add screenshot download with toolbar component refactor ([d541814](https://github.com/mike-at-redspace/rta-storybook-preview/commit/d5418149002607f6b6cfc7ca8e9f1d6e54098c69))
+
 # Changelog
 
 All notable changes to this project will be documented in this file. The format is based on
