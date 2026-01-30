@@ -10,6 +10,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: pages
@@ -56,6 +57,7 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
+      # Allow PR previews: Settings → Environments → github-pages → Deployment branches → "All branches" (or add your PR branches).
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
@@ -66,3 +68,9 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           token: ${{ github.token }}
+
+      - name: Remove preview label
+        if: github.event_name == 'pull_request'
+        run: gh pr edit ${{ github.event.pull_request.number }} --remove-label "preview"
+        env:
+          GH_TOKEN: ${{ github.token }}
