@@ -77,9 +77,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Repository
 
-- **GitHub**: https://github.com/ParamountVDS/rta-preview-addon
+- **GitHub**: https://github.com/mike-at-redspace/rta-storybook-preview
 - **NPM**: https://npmjs.org/package/rta-preview-addon
-- **Issues**: https://github.com/ParamountVDS/rta-preview-addon/issues
+- **Issues**: https://github.com/mike-at-redspace/rta-storybook-preview/issues
 
 ---
 
